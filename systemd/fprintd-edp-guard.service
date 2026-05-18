@@ -1,0 +1,34 @@
+# fprintd eDP guard systemd unit
+#
+# This is a diagnostic oneshot service.
+#
+# It runs once at boot and records whether the expected external fingerprint
+# reader is visible to fprintd.
+#
+# It does not keep running.
+# It does not alter PAM.
+# It does not change device state.
+#
+# Install:
+#   sudo install -Dm644 systemd/fprintd-edp-guard.service /etc/systemd/system/fprintd-edp-guard.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now fprintd-edp-guard.service
+#
+# Logs:
+#   journalctl -u fprintd-edp-guard.service -b --no-pager
+
+[Unit]
+Description=fprintd eDP guard - check external fingerprint reader visibility
+Documentation=https://github.com/H234598/fprintd_edp_guard
+After=systemd-udev-settle.service dbus.service
+Wants=systemd-udev-settle.service
+
+[Service]
+Type=oneshot
+# Adjust these patterns for your hardware if needed.
+Environment=FPRINTD_EXTERNAL_PATTERN=Elan|ELAN|ElanTech|USB
+Environment=FPRINTD_INTERNAL_PATTERN=Synaptics|internal|builtin|built-in
+ExecStart=/usr/local/sbin/fprintd-edp-guard --require-external --verbose
+
+[Install]
+WantedBy=multi-user.target
