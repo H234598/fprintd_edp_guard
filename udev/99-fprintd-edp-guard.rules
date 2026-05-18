@@ -1,0 +1,36 @@
+# 99-fprintd-edp-guard.rules
+#
+# This is a TEMPLATE, not a universal rule.
+#
+# Do not install it blindly.
+# First find your fingerprint reader with:
+#
+#   lsusb
+#
+# Example:
+#
+#   Bus 003 Device 004: ID 04f3:0c4c Elan Microelectronics Corp. Fingerprint Sensor
+#
+# In that example:
+#   idVendor  = 04f3
+#   idProduct = 0c4c
+#
+# Then adapt one of the examples below.
+#
+# This rule does not disable hardware by default.
+# It only shows how to tag or react to a known USB fingerprint reader.
+
+# Example 1: tag the external Elan fingerprint reader for easier debugging.
+# Replace 04f3 and 0c4c with your actual values.
+#
+# ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="04f3", ATTR{idProduct}=="0c4c", TAG+="systemd", ENV{FPRINTD_EDP_GUARD_EXTERNAL}="1"
+
+# Example 2: trigger the guard service when the external reader appears.
+# This assumes fprintd-edp-guard.service is installed.
+# Replace 04f3 and 0c4c with your actual values.
+#
+# ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="04f3", ATTR{idProduct}=="0c4c", TAG+="systemd", ENV{SYSTEMD_WANTS}+="fprintd-edp-guard.service"
+
+# Example 3: debugging-only log marker via systemd service trigger.
+# Prefer service-based logging over complex shell snippets inside udev rules.
+# udev rules should stay small and predictable.
